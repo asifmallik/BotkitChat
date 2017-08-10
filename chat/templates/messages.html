@@ -1,0 +1,9 @@
+<div flex layout="row" layout-align="{{content.sender == 'me' ? 'end' : 'start'}} start">
+    <div layout="column" flex="50" layout="row">
+        <div flex class="messages">
+            <div ng-repeat="message in content.messages" flex layout="row" layout-align="{{content.sender == 'me' ? 'end' : 'start'}} start">
+                <message text="{{message.text}}"></message>
+            </div>
+        </div>
+    </div>
+</div>

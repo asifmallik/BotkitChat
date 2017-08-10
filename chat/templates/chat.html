@@ -1,0 +1,29 @@
+<md-toolbar>
+    <div class="md-toolbar-tools">
+        <md-button ng-click="toggleSidenav()" hide-gt-md aria-label="Menu">
+            <ng-md-icon icon="menu"></ng-md-icon>
+        </md-button>
+        <h3>Chat</h3>
+        <span flex></span>
+    </div>
+</md-toolbar>
+<div layout="row" flex>
+    <md-content class="chat" layout-fill layout="column" flex md-scroll-y>
+        <main flex>
+            <div ng-repeat="messages in chat">
+                <messages flex content="messages"></messages>
+            </div>
+        </main>
+        <footer>
+            <md-card layout="row" class="message-input-card">
+                <md-input-container flex="grow">
+                    <label>Send a message...</label>
+                    <textarea ng-textarea-enter="sendMessage()" rows="1" ng-model="message"></textarea>
+                </md-input-container>
+                <md-button ng-click="sendMessage()">
+                    <ng-md-icon icon="send"></ng-md-icon>
+                </md-button>
+            </md-card>
+        </footer>
+    </md-content>
+</div>
