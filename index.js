@@ -2,6 +2,7 @@ var restify = require('restify');
 var socketio = require('socket.io');
 var MongoClient = require('mongodb-bluebird');
 var request = require('request');
+var config = require('./config.json');
 
 var botsCollection, messagesCollection;
 MongoClient.connect('mongodb://localhost:27017/BotkitChat').then(function (db) {
@@ -156,6 +157,6 @@ server.get(/\/chat\/?.*/, restify.plugins.serveStatic({
     directory: __dirname
 }));
 
-server.listen(8080, function () {
+server.listen(config.port, function () {
     console.log('%s listening at %s', server.name, server.url);
 });
