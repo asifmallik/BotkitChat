@@ -2,6 +2,7 @@ var restify = require('restify');
 var socketio = require('socket.io');
 var MongoClient = require('mongodb-bluebird');
 var request = require('request');
+var utils = require('./utils');
 var config = require('./config.json');
 
 var botsCollection, messagesCollection;
@@ -9,42 +10,6 @@ MongoClient.connect('mongodb://localhost:27017/BotkitChat').then(function (db) {
     botsCollection = db.collection('bots');
     messagesCollection = db.collection('messages');
 });
-
-function generateId() {
-    var id = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (var i = 0; i < 10; i++) id += possible.charAt(Math.floor(Math.random() * possible.length));
-    return id;
-}
-
-function getMessageObject(botId, text) {
-    return {
-        object: 'page',
-        entry: [{
-            id: botId,
-            time: getTimestamp(),
-            messaging: [{
-                sender: {
-                    id: 'me'
-                },
-                recipient: {
-                    id: botId
-                },
-                timestamp: getTimestamp(),
-                message: {
-                    mid: 'mid.$cAADVUUk_WKpj9zjtb1dxfOhXb-kp',
-                    seq: 2626475,
-                    text,
-                    nlp: []
-                }
-            }]
-        }]
-    };
-}
-
-function getTimestamp() {
-    return (new Date).getTime();
-}
 
 var server = restify.createServer({
     formatters: {
@@ -92,7 +57,7 @@ io.on('connection', function (client) {
             accessToken: bot.accessToken
         }).then(function (result) {
             if (!result) {
-                bot.lastUpdated = getTimestamp();
+                bot.lastUpdated = utils.getTimestamp();
                 botsCollection.insert(bot).then(function (result) {
                     bot.id = result.insertedIds[0];
                     delete bot.lastUpdated;
@@ -109,10 +74,10 @@ io.on('connection', function (client) {
             _id: message.chatId
         }).then(function (bot) {
             request.post(bot.webhook, {
-                form: getMessageObject(bot._id.toString(), message.text)
+                form: utils.getMessageObject(bot._id.toString(), message.text)
             });
         });
-        message.timestamp = getTimestamp();
+        message.timestamp = utils.getTimestamp();
         messagesCollection.insert(message);
         client.emit('chat:message', message);
     });
@@ -145,7 +110,7 @@ server.post('/v2.6/me/messages', function (req, res, next) {
             chatId: bot._id.toString(),
             sender: bot._id.toString(),
             text: req.body.message.text,
-            timestamp: getTimestamp()
+            timestamp: utils.getTimestamp()
         };
         messagesCollection.insert(message);
         clients['me'].emit('chat:message', message);
